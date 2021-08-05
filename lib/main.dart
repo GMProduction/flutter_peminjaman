@@ -12,6 +12,7 @@ import 'package:peminjaman/views/login_siswa.dart';
 import 'package:peminjaman/views/pages/login.dart';
 import 'package:peminjaman/views/pencarian.dart';
 import 'package:peminjaman/views/profil_guru.dart';
+import 'package:peminjaman/views/profil_siswa.dart';
 import 'package:peminjaman/views/welcome.dart';
 
 void main() {
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
           '/dashboard-guru': (context) => DashboardGuru(),
           '/history-guru': (context) => HistoryGuru(),
           '/profil-guru': (context) => ProfilGuru(),
+          '/profil': (context) => ProfilSiswa(),
           '/pencarian': (context) => Pencarian(),
           '/detail': (context) => Detail(),
           '/detail-pinjam': (context) => DetailPeminjaman(),

@@ -105,7 +105,6 @@ class _ProfilGuruState extends State<ProfilGuru> {
 
   @override
   Widget build(BuildContext context) {
-    print(nama);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(

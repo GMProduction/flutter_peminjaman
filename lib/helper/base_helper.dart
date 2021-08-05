@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum StateStatus { initial, onLoading, success, failure }
 
@@ -8,6 +9,11 @@ const String BaseAvatar =
     'https://user-images.githubusercontent.com/4462072/63714494-c4d9c880-c7f6-11e9-8940-5a9636ecba36.png';
 const String FaceAvatar =
     'https://blogunik.com/wp-content/uploads/2018/01/Tatjana-Saphira-1.jpg';
+
+Future<String> GetToken() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getString("token") ?? "";
+}
 
 class ApiObjectResponse extends Equatable {
   final int code;
