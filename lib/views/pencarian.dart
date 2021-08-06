@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:peminjaman/bloc/barang_bloc.dart';
+import 'package:peminjaman/helper/base_helper.dart';
 import 'package:peminjaman/model/barang.dart';
 import 'package:peminjaman/views/components/bottom_navbar.dart';
 import 'package:peminjaman/views/components/card_barang.dart';
@@ -16,34 +18,35 @@ class Pencarian extends StatefulWidget {
 class _PencarianState extends State<Pencarian> {
   List<Barang> barang = [];
   bool isLoading = true;
+  List<dynamic> _listBarang = [];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchBarangByName('');
   }
 
   void fetchBarangByName(String param) async {
     try {
-      final response = await Dio()
-          .get('http://192.168.137.1:8000/api/barang/cari/nama?name=$param');
-      final data = response.data as List;
-      final List<Barang> items = data.map((item) {
-        final String image = item['image'] ?? '';
-        return Barang(
-            id: item['id'] as int,
-            nama: item['nama_barang'] as String,
-            qty: item['qty'] as int,
-            image: image);
-      }).toList();
       setState(() {
-        barang = items;
+        isLoading = true;
+      });
+      final response =
+          await Dio().get('$HostAddress/barang?name=$param&limit=100&offset=0');
+      final data = response.data['payload'] as List;
+      print(data.toString());
+      setState(() {
+        _listBarang = data;
       });
     } on DioError catch (e) {
-      print(e);
-    } on Exception catch (e) {
-      print(e);
+      Fluttertoast.showToast(
+          msg: "Gagal Mengambil Data...",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
     setState(() {
       isLoading = false;
@@ -90,7 +93,7 @@ class _PencarianState extends State<Pencarian> {
                           ],
                         ),
                       )
-                    : barang.length <= 0
+                    : _listBarang.length <= 0
                         ? Container(
                             height: double.infinity,
                             width: double.infinity,
@@ -101,18 +104,21 @@ class _PencarianState extends State<Pencarian> {
                             padding: const EdgeInsets.only(
                                 left: 20, right: 20, bottom: 20),
                             child: Column(
-                              children: barang
+                              children: _listBarang
                                   .map((barang) => GestureDetector(
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, '/detail',
-                                            arguments: barang.id);
+                                        Navigator.pushNamed(context, '/detail',
+                                            arguments: barang["id"]);
                                       },
-                                      child: CardBarang(image: barang.image, nama: barang.nama, stock: barang.qty,)))
+                                      child: CardBarang(
+                                        image:
+                                            "$HostImage${barang["image"].toString()}",
+                                        nama: barang["nama_barang"].toString(),
+                                        stock: barang["qty"] as int,
+                                      )))
                                   .toList(),
                             ),
                           ))),
-            
           ],
         ),
       ),

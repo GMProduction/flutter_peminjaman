@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:peminjaman/helper/base_helper.dart';
-import 'package:peminjaman/helper/dummy.dart';
 import 'package:peminjaman/model/barang.dart';
 import 'package:peminjaman/views/components/bottom_navbar.dart';
 import 'package:peminjaman/views/components/card_barang.dart';
@@ -20,20 +19,16 @@ class _DashboardState extends State<Dashboard> {
   List<Barang> barang = [];
   bool isLoading = true;
   String token = '';
+  String avatar = BaseAvatar;
+  String nama = "Nama Siswa";
+  String kelas = "Kelas";
   // List<dynamic> dummyBarang = [];
   List<dynamic> _listBarang = [];
   @override
   void initState() {
     super.initState();
-    // cekToken();
+    getProfile();
     fetchBarang();
-    // fetchDummyData();
-  }
-
-  void cekToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String token = preferences.getString("token") ?? '';
-    print("token : $token");
   }
 
   void fetchBarang() async {
@@ -62,6 +57,37 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
+  void getProfile() async {
+    String url = "$HostAddress/siswa";
+    String _token = await GetToken();
+    try {
+      final response = await Dio().get(url,
+          options: Options(headers: {
+            "Authorization": "Bearer $_token",
+            "Accept": "application/json"
+          }));
+
+      setState(() {
+        avatar = response.data["payload"]["get_siswa"]["image"] == null
+            ? BaseAvatar
+            : "$HostImage${response.data["payload"]["get_siswa"]["image"]}";
+        nama = response.data["payload"]["get_siswa"]["nama"].toString();
+        kelas = response.data["payload"]["get_siswa"]["kelas"].toString();
+      });
+      print(response);
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: "Gagal Mengganti Gambar Profil...",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print(e.response);
+    }
+  }
+
   // void fetchDummyData() async {
   //   Future.delayed(const Duration(seconds: 2));
   //   setState(() {
@@ -78,9 +104,9 @@ class _DashboardState extends State<Dashboard> {
         child: Column(
           children: [
             ProfileNavbar(
-              avatar: FaceAvatar,
-              nama: "Tatjana Saphira",
-              kelas: "XI IPS 2",
+              avatar: avatar,
+              nama: nama,
+              kelas: kelas,
               isGuru: false,
             ),
             Expanded(
@@ -140,8 +166,10 @@ class _DashboardState extends State<Dashboard> {
                                               padding: const EdgeInsets.only(
                                                   right: 5),
                                               child: CardBarang(
-                                                image: "$HostImage${barang["image"].toString()}",
-                                                nama: barang["nama_barang"].toString(),
+                                                image:
+                                                    "$HostImage${barang["image"].toString()}",
+                                                nama: barang["nama_barang"]
+                                                    .toString(),
                                                 stock: barang["qty"] as int,
                                               ),
                                             )))

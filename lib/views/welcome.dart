@@ -13,14 +13,19 @@ class _WelcomeState extends State<Welcome> {
   @override
   void initState() {
     super.initState();
-    // cekToken();
+    cekToken();
   }
 
   void cekToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? token = preferences.getString("token");
-    if (token != null) {
-      Navigator.popAndPushNamed(context, "/dashboard");
+    String? role = preferences.getString("role");
+    if (token != null && role != null) {
+      if (role == "guru") {
+        Navigator.popAndPushNamed(context, "/dashboard-guru");
+      } else {
+        Navigator.popAndPushNamed(context, "/dashboard");
+      }
     }
   }
 

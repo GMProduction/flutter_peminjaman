@@ -15,6 +15,7 @@ class ProfilSiswa extends StatefulWidget {
 class _ProfilSiswaState extends State<ProfilSiswa> {
   bool isEditable = false;
   bool onUploadImage = false;
+  bool isLoadingSave = false;
   String nama = '';
   String avatar = BaseAvatar;
   String noHp = '';
@@ -50,18 +51,24 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
             "Authorization": "Bearer $_token",
             "Accept": "application/json"
           }));
+      String? tglLahir = response.data["payload"]["get_siswa"]["tanggal"];
+      if (tglLahir != null) {
+        DateTime tempDate = DateTime.parse(tglLahir);
+        setState(() {
+          tanggal = tempDate;
+        });
+      }
       setState(() {
         avatar = response.data["payload"]["get_siswa"]["image"] == null
             ? BaseAvatar
             : "$HostImage${response.data["payload"]["get_siswa"]["image"]}";
-        textHp.text = response.data["payload"]["get_siswa"]["no_hp"].toString();
-        textAlamat.text =
-            response.data["payload"]["get_siswa"]["alamat"].toString();
-        textNama.text =
-            response.data["payload"]["get_siswa"]["nama"].toString();
-        textKelas.text =
-            response.data["payload"]["get_siswa"]["kelas"].toString();
       });
+      textHp.text = response.data["payload"]["get_siswa"]["no_hp"].toString();
+      textAlamat.text =
+          response.data["payload"]["get_siswa"]["alamat"].toString();
+      textNama.text = response.data["payload"]["get_siswa"]["nama"].toString();
+      textKelas.text =
+          response.data["payload"]["get_siswa"]["kelas"].toString();
       print(response);
     } on DioError catch (e) {
       Fluttertoast.showToast(
@@ -125,6 +132,9 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
   }
 
   void editProfile() async {
+    setState(() {
+      isLoadingSave = true;
+    });
     try {
       Map<String, dynamic> data = {
         "nama": textNama.text,
@@ -143,7 +153,18 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
             "Authorization": "Bearer $token",
             "Accept": "application/json"
           }));
+      Fluttertoast.showToast(
+          msg: "Berhasil Merubah Data...",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
       print(response.data);
+      setState(() {
+        isEditable = false;
+      });
     } on DioError catch (e) {
       Fluttertoast.showToast(
           msg: "Gagal Menyimpan Data...",
@@ -155,6 +176,16 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
           fontSize: 16.0);
       print(e.message);
     }
+    setState(() {
+      isLoadingSave = false;
+    });
+  }
+
+  void logout() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove("token");
+    preferences.remove("role");
+    Navigator.pushNamedAndRemoveUntil(context, "/", ModalRoute.withName("/"));
   }
 
   @override
@@ -173,53 +204,73 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Container(
+                      child: isEditable
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isEditable = false;
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text("Batal")
+                                ],
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isEditable = true;
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 16,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text("Edit")
+                                ],
+                              ),
+                            ),
+                    ),
                     Text(
                       "Profil",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Container(
-                      child: isEditable ? 
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isEditable = false;
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text("Batal")
-                            ],
-                          ),
-                        )
-                       : GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isEditable = true;
-                          });
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        logout();
+                      },
+                      child: Container(
                         child: Row(
                           children: [
                             Icon(
-                              Icons.edit_outlined,
+                              Icons.logout,
                               size: 16,
                               color: Colors.black,
                             ),
                             SizedBox(
                               width: 5,
                             ),
-                            Text("Edit")
+                            Text("Logout")
                           ],
                         ),
-                      )
-                    )
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -410,14 +461,44 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     margin: EdgeInsets.only(bottom: 20),
-                    child: Container(
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Center(
-                        child: Text("Simpan", style: TextStyle(color: Colors.white),),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (!isLoadingSave) {
+                          editProfile();
+                        }
+                      },
+                      child: Container(
+                        height: 65,
+                        decoration: BoxDecoration(
+                            color: Colors.lightBlue,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Center(
+                          child: isLoadingSave
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      "Loading...",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 24),
+                                    )
+                                  ],
+                                )
+                              : Text(
+                                  "Simpan",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 24),
+                                ),
+                        ),
                       ),
                     ),
                   ),

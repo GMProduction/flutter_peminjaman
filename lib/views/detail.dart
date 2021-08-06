@@ -91,6 +91,11 @@ class _DetailState extends State<Detail> {
   }
 
   void pinjam() async {
+    setState(() {
+      isLoadingSave = true;
+    });
+
+    //cek ketersediaan stock
     if (stock < _vPinjam) {
       Fluttertoast.showToast(
           msg: "Sisa Ketersediaan Tidak Mencukupi...",
@@ -100,45 +105,42 @@ class _DetailState extends State<Detail> {
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-    }
-
-    setState(() {
-      isLoadingSave = true;
-    });
-    Map<String, dynamic> _saveData = {
-      "id_barang": idBarang,
-      "id_mapel": _vMapel["id"],
-      "qty": _vPinjam,
-      "tanggal_pinjam":
-          "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
-    };
-    print(_saveData);
-    try {
-      var formData = FormData.fromMap({
+    } else {
+      Map<String, dynamic> _saveData = {
         "id_barang": idBarang,
-      "id_mapel": _vMapel["id"],
-      "qty": _vPinjam,
-      "tanggal_pinjam":
-          "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
-      });
-      final response = await Dio().post('$HostAddress/pinjam',
-          data: formData,
-          options: Options(headers: {
-            "Authorization": "Bearer $token",
-            "Accept": "application/json"
-          }, contentType: "application/json"));
-      print(response.statusCode);
-      Navigator.popAndPushNamed(context, '/history');
-    } on DioError catch (e) {
-      Fluttertoast.showToast(
-          msg: "Gagal Menyimpan Data...",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      print(e.response);
+        "id_mapel": _vMapel["id"],
+        "qty": _vPinjam,
+        "tanggal_pinjam":
+            "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
+      };
+      print(_saveData);
+      try {
+        var formData = FormData.fromMap({
+          "id_barang": idBarang,
+          "id_mapel": _vMapel["id"],
+          "qty": _vPinjam,
+          "tanggal_pinjam":
+              "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
+        });
+        final response = await Dio().post('$HostAddress/pinjam',
+            data: formData,
+            options: Options(headers: {
+              "Authorization": "Bearer $token",
+              "Accept": "application/json"
+            }, contentType: "application/json"));
+        print(response.statusCode);
+        Navigator.popAndPushNamed(context, '/history');
+      } on DioError catch (e) {
+        Fluttertoast.showToast(
+            msg: "Gagal Menyimpan Data...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        print(e.response);
+      }
     }
     setState(() {
       isLoadingSave = false;
@@ -213,7 +215,7 @@ class _DetailState extends State<Detail> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                  "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"),
+                                  "${_vTanggal.day.toString().padLeft(2, "0")}-${_vTanggal.month.toString().padLeft(2, "0")}-${_vTanggal.year.toString()}"),
                               Icon(
                                 Icons.calendar_today,
                                 color: Colors.grey,

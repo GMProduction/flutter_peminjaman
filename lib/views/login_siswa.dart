@@ -30,10 +30,13 @@ class _LoginSiswaState extends State<LoginSiswa> {
               headers: {HttpHeaders.contentTypeHeader: "application/json"}),
           data: jsonEncode(params));
       final int code = response.data['status'] as int;
+      print(response.data);
       if (code == 200) {
-        final String token = response.data['msg'] as String;
+        final String token = response.data['data']['token'] as String;
+        final String role = response.data['data']['role'] as String;
         SharedPreferences preferences = await SharedPreferences.getInstance();
         preferences.setString("token", token);
+        preferences.setString("role", role);
         Fluttertoast.showToast(
             msg: "Login Berhasil Token $token",
             toastLength: Toast.LENGTH_SHORT,
@@ -139,7 +142,7 @@ class _LoginSiswaState extends State<LoginSiswa> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: GestureDetector(
               onTap: () {
-                if(!isLoading){
+                if (!isLoading) {
                   login();
                   // dummyLogin();
                 }
@@ -150,33 +153,35 @@ class _LoginSiswaState extends State<LoginSiswa> {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.lightBlue),
                 child: Center(
-                  child: isLoading ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20, 
-                        height: 20, 
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1,
-                          color: Colors.white,
+                  child: isLoading
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "Loading",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            )
+                          ],
+                        )
+                      : Text(
+                          "Login",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24),
                         ),
-                      ),
-                      SizedBox(width: 5,),
-                      Text(
-                        "Loading", 
-                        style: TextStyle(
-                          color: Colors.white, 
-                          fontSize: 16
-                        ),
-                      )
-                    ],
-                  ) : Text(
-                    "Login",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24),
-                  ),
                 ),
               ),
             ),

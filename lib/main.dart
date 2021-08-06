@@ -9,7 +9,6 @@ import 'package:peminjaman/views/history.dart';
 import 'package:peminjaman/views/history_guru.dart';
 import 'package:peminjaman/views/login_guru.dart';
 import 'package:peminjaman/views/login_siswa.dart';
-import 'package:peminjaman/views/pages/login.dart';
 import 'package:peminjaman/views/pencarian.dart';
 import 'package:peminjaman/views/profil_guru.dart';
 import 'package:peminjaman/views/profil_siswa.dart';

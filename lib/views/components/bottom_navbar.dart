@@ -23,7 +23,10 @@ class BottomNavbar extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/dashboard');
+                String current = ModalRoute.of(context)!.settings.name!;
+                if (current != '/dashboard') {
+                  Navigator.pushNamed(context, '/dashboard');
+                }
               },
               child: Icon(
                 Icons.home,
@@ -33,7 +36,10 @@ class BottomNavbar extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/history');
+                String current = ModalRoute.of(context)!.settings.name!;
+                if (current != '/history') {
+                  Navigator.pushNamed(context, '/history');
+                }
               },
               child: Icon(
                 Icons.access_time,
@@ -43,7 +49,10 @@ class BottomNavbar extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/profil");
+                String current = ModalRoute.of(context)!.settings.name!;
+                if (current != '/profil') {
+                  Navigator.pushNamed(context, "/profil");
+                }
               },
               child: Icon(
                 Icons.account_circle,

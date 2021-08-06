@@ -86,18 +86,18 @@ class _HistoryState extends State<History> {
                                 height: 120,
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border:
-                                      Border.all(color: Colors.black12.withOpacity(0.1), width: 1),
-                                  color: Colors.white70,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
-                                        spreadRadius: 1,
-                                        blurRadius: 1,
-                                        offset: Offset(2, 2))
-                                  ]
-                                ),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: Colors.black12.withOpacity(0.1),
+                                        width: 1),
+                                    color: Colors.white70,
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          spreadRadius: 1,
+                                          blurRadius: 1,
+                                          offset: Offset(2, 2))
+                                    ]),
                                 child: Row(
                                   children: [
                                     Container(
@@ -105,37 +105,46 @@ class _HistoryState extends State<History> {
                                       width: 100,
                                       margin: EdgeInsets.only(right: 10),
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           color: Colors.amber,
                                           image: DecorationImage(
-                                              image: NetworkImage("$HostImage${value["get_barang"]["image"]}"),
+                                              image: NetworkImage(
+                                                  "$HostImage${value["get_barang"]["image"]}"),
                                               fit: BoxFit.cover)),
                                     ),
                                     Expanded(
                                         child: Container(
-                                        height: 100,
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              value["get_barang"]["nama_barang"],
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              'Jumlah Pinjam : ${value["qty"]}',
-                                              style: TextStyle(fontSize: 16),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    )
+                                      height: 100,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            value["get_barang"]["nama_barang"],
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            'Jumlah Pinjam : ${value["qty"]}',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          Expanded(child: Container()),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(value["txt_status"]),
+                                          ),
+                                        ],
+                                      ),
+                                    ))
                                   ],
                                 ),
                               ),
                             );
                           }).toList(),
                         ),
-                    )),
+                      )),
             BottomNavbar(
               selected: 1,
             )
