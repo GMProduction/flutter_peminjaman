@@ -407,10 +407,6 @@ class _ProfilSiswaState extends State<ProfilSiswa> {
                             lastDate: DateTime(2500))
                         .then((value) {
                       if (value != null) {
-                        print(nama);
-                        print(nama);
-                        print(nama);
-                        print(nama);
                         setState(() {
                           tanggal = value;
                         });

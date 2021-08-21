@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:peminjaman/helper/base_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginGuru extends StatefulWidget {
   @override
@@ -12,7 +17,7 @@ class _LoginGuruState extends State<LoginGuru> {
   String password = '';
   bool isLoading = false;
 
-  void dummyLogin() async{
+  void dummyLogin() async {
     setState(() {
       isLoading = true;
     });
@@ -32,6 +37,59 @@ class _LoginGuruState extends State<LoginGuru> {
           textColor: Colors.white,
           fontSize: 16.0);
     }
+  }
+
+  void login() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      var params = {"username": username, "password": password};
+      final response = await Dio().post('$HostAddress/login',
+          options: Options(
+              headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+          data: jsonEncode(params));
+      final int code = response.data['status'] as int;
+      print(response.data);
+      if (code == 200) {
+        final String token = response.data['data']['token'] as String;
+        final String role = response.data['data']['role'] as String;
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        preferences.setString("token", token);
+        preferences.setString("role", role);
+        Fluttertoast.showToast(
+            msg: "Login Berhasil Token $token",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        Navigator.pushNamedAndRemoveUntil(
+            context, "/dashboard-guru", ModalRoute.withName("/dashboard-guru"));
+      } else {
+        Fluttertoast.showToast(
+            msg: "Login Gagal Silahkan Cek Username Dan Password...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: "Terjadi Kesalahan Pada Server...",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -95,9 +153,9 @@ class _LoginGuruState extends State<LoginGuru> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: GestureDetector(
               onTap: () {
-                if(!isLoading){
-                  // login();
-                  dummyLogin();
+                if (!isLoading) {
+                  login();
+                  // dummyLogin();
                 }
               },
               child: Container(
@@ -106,33 +164,35 @@ class _LoginGuruState extends State<LoginGuru> {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.lightBlue),
                 child: Center(
-                  child: isLoading ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20, 
-                        height: 20, 
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1,
-                          color: Colors.white,
+                  child: isLoading
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "Loading",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            )
+                          ],
+                        )
+                      : Text(
+                          "Login",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24),
                         ),
-                      ),
-                      SizedBox(width: 5,),
-                      Text(
-                        "Loading", 
-                        style: TextStyle(
-                          color: Colors.white, 
-                          fontSize: 16
-                        ),
-                      )
-                    ],
-                  ) : Text(
-                    "Login",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24),
-                  ),
                 ),
               ),
             ),

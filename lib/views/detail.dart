@@ -30,7 +30,6 @@ class _DetailState extends State<Detail> {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       var arguments = ModalRoute.of(context)!.settings.arguments;
-      print("=====asu====");
       fetchBarangById(arguments.toString());
       fetchMapel();
       print(arguments);
@@ -56,7 +55,9 @@ class _DetailState extends State<Detail> {
           "id": response.data['id'] as int,
           "nama": response.data['nama_barang'] as String,
           "qty": response.data['qty'] as int,
-          "image": response.data['image'] as String
+          "image": response.data['image'] == null
+              ? BaseAvatar
+              : response.data['image'] as String
         };
         stock = response.data['qty'] as int;
         idBarang = response.data['id'] as int;
