@@ -17,6 +17,7 @@ class _DetailState extends State<Detail> {
   late int stock = 0;
   late int idBarang = 0;
   late DateTime _vTanggal = DateTime.now();
+  late DateTime _vTanggalKembali = DateTime.now();
   late int _vPinjam = 0;
   late bool isLoadingSave = false;
   TextEditingController _textEditingController = TextEditingController()
@@ -112,7 +113,9 @@ class _DetailState extends State<Detail> {
         "id_mapel": _vMapel["id"],
         "qty": _vPinjam,
         "tanggal_pinjam":
-            "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
+            "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}",
+        "tanggal_kembali":
+            "${_vTanggalKembali.year.toString()}-${_vTanggalKembali.month.toString()}-${_vTanggalKembali.day.toString()}",
       };
       print(_saveData);
       try {
@@ -121,7 +124,9 @@ class _DetailState extends State<Detail> {
           "id_mapel": _vMapel["id"],
           "qty": _vPinjam,
           "tanggal_pinjam":
-              "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}"
+              "${_vTanggal.year.toString()}-${_vTanggal.month.toString()}-${_vTanggal.day.toString()}",
+          "tanggal_kembali":
+              "${_vTanggalKembali.year.toString()}-${_vTanggalKembali.month.toString()}-${_vTanggalKembali.day.toString()}",
         });
         final response = await Dio().post('$HostAddress/pinjam',
             data: formData,
@@ -217,6 +222,49 @@ class _DetailState extends State<Detail> {
                             children: [
                               Text(
                                   "${_vTanggal.day.toString().padLeft(2, "0")}-${_vTanggal.month.toString().padLeft(2, "0")}-${_vTanggal.year.toString()}"),
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text("Tanggal Kembali"),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2021),
+                                  lastDate: DateTime(2222))
+                              .then((value) {
+                            if (value != null) {
+                              String tglString =
+                                  "${value.day.toString()}-${value.month.toString()}-${value.year.toString()}";
+                              print(tglString);
+                              setState(() {
+                                _vTanggalKembali = value;
+                              });
+                            }
+                          });
+                        },
+                        child: Container(
+                          height: 45,
+                          margin: EdgeInsets.only(bottom: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border:
+                                  Border.all(color: Colors.black54, width: 1)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                  "${_vTanggalKembali.day.toString().padLeft(2, "0")}-${_vTanggalKembali.month.toString().padLeft(2, "0")}-${_vTanggalKembali.year.toString()}"),
                               Icon(
                                 Icons.calendar_today,
                                 color: Colors.grey,
